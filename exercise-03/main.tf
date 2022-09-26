@@ -12,7 +12,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -21,13 +21,13 @@ provider "aws" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_instance" "web_server" {
-  count = "${length(var.names)}"
+  count = length(var.names)
 
-  ami           = "${data.aws_ami.ubuntu.id}"
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  key_name               = "${var.key_name}"
-  vpc_security_group_ids = ["${aws_security_group.web_server.id}"]
+  key_name               = var.key_name
+  vpc_security_group_ids = ["aws_security_group.web_server.id"]
 
   # To keep this example simple, we run a web server as a User Data script. In real-world usage, you would typically
   # install the web server and its dependencies in the AMI.
@@ -38,7 +38,7 @@ resource "aws_instance" "web_server" {
               EOF
 
   tags = {
-    Name = "${element(var.names, count.index)}"
+    Name = element(var.names, count.index)
   }
 }
 
@@ -81,10 +81,10 @@ resource "aws_security_group" "web_server" {
 
 resource "aws_security_group_rule" "allow_http_inbound" {
   type              = "ingress"
-  from_port         = "${var.http_port}"
-  to_port           = "${var.http_port}"
+  from_port         = var.http_port
+  to_port           = var.http_port
   protocol          = "tcp"
-  security_group_id = "${aws_security_group.web_server.id}"
+  security_group_id = aws_security_group.web_server.id
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
@@ -93,7 +93,7 @@ resource "aws_security_group_rule" "allow_ssh_inbound" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  security_group_id = "${aws_security_group.web_server.id}"
+  security_group_id = aws_security_group.web_server.id
 
   # To keep this example simple, we allow SSH requests from any IP. In real-world usage, you should lock this down
   # to just the IPs of trusted servers (e.g., your office IPs).
@@ -105,6 +105,6 @@ resource "aws_security_group_rule" "allow_all_outbound" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = "${aws_security_group.web_server.id}"
+  security_group_id = aws_security_group.web_server.id
   cidr_blocks       = ["0.0.0.0/0"]
 }

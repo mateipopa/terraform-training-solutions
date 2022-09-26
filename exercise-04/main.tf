@@ -13,7 +13,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -23,9 +23,9 @@ provider "aws" {
 resource "aws_autoscaling_group" "web_servers" {
   # Note that we intentionally depend on the Launch Configuration name so that creating a new Launch Configuration
   # (e.g. to deploy a new AMI) creates a new Auto Scaling Group. This will allow for rolling deployments.
-  name = "${aws_launch_configuration.web_servers.name}"
+  name = aws_launch_configuration.web_servers.name
 
-  launch_configuration = "${aws_launch_configuration.web_servers.name}"
+  launch_configuration = aws_launch_configuration.web_servers.name
 
   min_size         = 3
   max_size         = 3
@@ -39,11 +39,11 @@ resource "aws_autoscaling_group" "web_servers" {
   # needs to be replaced
   health_check_type = "ELB"
 
-  target_group_arns = ["${aws_alb_target_group.web_servers.arn}"]
+  target_group_arns = [aws_alb_target_group.web_servers.arn]
 
   tag {
     key                 = "Name"
-    value               = "${var.name}"
+    value               = var.name
     propagate_at_launch = true
   }
 
@@ -66,11 +66,11 @@ resource "aws_autoscaling_group" "web_servers" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_launch_configuration" "web_servers" {
-  image_id      = "${data.aws_ami.ubuntu.id}"
+  image_id      = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  key_name        = "${var.key_name}"
-  security_groups = ["${aws_security_group.web_server.id}"]
+  key_name        = var.key_name
+  security_groups = [aws_security_group.web_server.id]
 
   # To keep this example simple, we run a web server as a User Data script. In real-world usage, you would typically
   # install the web server and its dependencies in the AMI.
@@ -123,7 +123,7 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_security_group" "web_server" {
   name   = "${var.name}-${terraform.workspace}"
-  vpc_id = "${data.aws_vpc.default.id}"
+  vpc_id = data.aws_vpc.default.id
 
   # This is here because aws_launch_configuration.web_servers sets create_before_destroy to true and depends on this
   # resource
@@ -134,10 +134,10 @@ resource "aws_security_group" "web_server" {
 
 resource "aws_security_group_rule" "web_server_allow_http_inbound" {
   type              = "ingress"
-  from_port         = "${var.web_server_http_port}"
-  to_port           = "${var.web_server_http_port}"
+  from_port         = var.web_server_http_port
+  to_port           = var.web_server_http_port
   protocol          = "tcp"
-  security_group_id = "${aws_security_group.web_server.id}"
+  security_group_id = aws_security_group.web_server.id
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
@@ -146,7 +146,7 @@ resource "aws_security_group_rule" "web_server_allow_ssh_inbound" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  security_group_id = "${aws_security_group.web_server.id}"
+  security_group_id = aws_security_group.web_server.id
 
   # To keep this example simple, we allow SSH requests from any IP. In real-world usage, you should lock this down
   # to just the IPs of trusted servers (e.g., your office IPs).
@@ -158,7 +158,7 @@ resource "aws_security_group_rule" "web_server_allow_all_outbound" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = "${aws_security_group.web_server.id}"
+  security_group_id = aws_security_group.web_server.id
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
@@ -168,7 +168,7 @@ resource "aws_security_group_rule" "web_server_allow_all_outbound" {
 
 resource "aws_alb" "web_servers" {
   name            = "${var.name}-${terraform.workspace}"
-  security_groups = ["${aws_security_group.alb.id}"]
+  security_groups = [aws_security_group.alb.id]
   subnets         = [data.aws_subnets.default.id]
 
   # This is here because aws_alb_listener.htp depends on this resource and sets create_before_destroy to true
@@ -182,13 +182,13 @@ resource "aws_alb" "web_servers" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_alb_listener" "http" {
-  load_balancer_arn = "${aws_alb.web_servers.arn}"
-  port              = "${var.alb_http_port}"
+  load_balancer_arn = aws_alb.web_servers.arn
+  port              = var.alb_http_port
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = "${aws_alb_target_group.web_servers.arn}"
+    target_group_arn = aws_alb_target_group.web_servers.arn
   }
 
   # This is here because aws_autoscaling_group.web_servers depends on this resource and sets create_before_destroy
@@ -205,9 +205,9 @@ resource "aws_alb_listener" "http" {
 
 resource "aws_alb_target_group" "web_servers" {
   name     = "${var.name}-${terraform.workspace}"
-  port     = "${var.web_server_http_port}"
+  port     = var.web_server_http_port
   protocol = "HTTP"
-  vpc_id   = "${data.aws_vpc.default.id}"
+  vpc_id   = data.aws_vpc.default.id
 
   # Give existing connections 10 seconds to complete before deregistering an instance. The default delay is 300 seconds
   # (5 minutes), which significantly slows down redeploys. In theory, the ALB should deregister the instance as long as
@@ -235,12 +235,12 @@ resource "aws_alb_target_group" "web_servers" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_alb_listener_rule" "send_all_to_web_servers" {
-  listener_arn = "${aws_alb_listener.http.arn}"
+  listener_arn = aws_alb_listener.http.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = "${aws_alb_target_group.web_servers.arn}"
+    target_group_arn = aws_alb_target_group.web_servers.arn
   }
 
   condition {
@@ -257,15 +257,15 @@ resource "aws_alb_listener_rule" "send_all_to_web_servers" {
 
 resource "aws_security_group" "alb" {
   name   = "${var.name}-${terraform.workspace}-alb"
-  vpc_id = "${data.aws_vpc.default.id}"
+  vpc_id = data.aws_vpc.default.id
 }
 
 resource "aws_security_group_rule" "alb_allow_http_inbound" {
   type              = "ingress"
-  from_port         = "${var.alb_http_port}"
-  to_port           = "${var.alb_http_port}"
+  from_port         = var.alb_http_port
+  to_port           = var.alb_http_port
   protocol          = "tcp"
-  security_group_id = "${aws_security_group.alb.id}"
+  security_group_id = aws_security_group.alb.id
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
@@ -275,7 +275,7 @@ resource "aws_security_group_rule" "allow_all_outbound" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = "${aws_security_group.alb.id}"
+  security_group_id = aws_security_group.alb.id
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
