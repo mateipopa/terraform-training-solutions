@@ -45,3 +45,4 @@ variable "server_text" {
   description = "The text the server should return for HTTP requests"
   default     = "Hello, World"
 }
+

@@ -32,15 +32,15 @@ module "frontend" {
 
   name                  = "frontend-prod"
   size                  = 3
-  key_name              = "${var.key_name}"
+  key_name              = var.key_name
   user_data_script_name = "user-data-frontend.sh"
-  server_text           = "${var.frontend_server_text}"
+  server_text           = var.frontend_server_text
   is_internal_alb       = 0
   is_internal_alb_bool  = false
 
   # Pass an output from the backend remote state to the frontend module. This is the URL of the backend microservice,
   # which the frontend will use for "service calls"
-  backend_url = "${data.terraform_remote_state.backend.backend_url}"
+  backend_url = data.terraform_remote_state.backend.backend_url
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -51,8 +51,8 @@ data "terraform_remote_state" "backend" {
   backend = "s3"
 
   config {
-    region = "${var.aws_region}"
-    bucket = "${var.backend_remote_state_s3_bucket}"
-    key    = "${var.backend_remote_state_s3_key}"
+    region = var.aws_region
+    bucket = var.backend_remote_state_s3_bucket
+    key    = var.backend_remote_state_s3_key
   }
 }
