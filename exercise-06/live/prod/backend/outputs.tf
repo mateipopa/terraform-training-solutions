@@ -1,3 +1,3 @@
 output "backend_url" {
-  value = "${module.backend.url}"
+  value = module.backend.url
 }

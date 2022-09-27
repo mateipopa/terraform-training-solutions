@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -32,9 +32,9 @@ module "backend" {
 
   name                  = "backend-stage"
   size                  = 2
-  key_name              = "${var.key_name}"
+  key_name              = var.key_name
   user_data_script_name = "user-data-backend.sh"
-  server_text           = "${var.backend_server_text}"
+  server_text           = var.backend_server_text
   is_internal_alb       = 1
   is_internal_alb_bool  = true
 }

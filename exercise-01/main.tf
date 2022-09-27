@@ -2,15 +2,6 @@
 # DEPLOY A SIMPLE WEB SERVER ON A SINGLE EC2 INSTANCE
 # ---------------------------------------------------------------------------------------------------------------------
 
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "4.18.0"
-    }
-  }
-}
-
 provider "aws" {
   region = var.aws_region
 }
@@ -36,7 +27,7 @@ resource "aws_instance" "web_server" {
               EOF
 
   tags = {
-    Name = var.name
+    Name = "var.name"
   }
 }
 
