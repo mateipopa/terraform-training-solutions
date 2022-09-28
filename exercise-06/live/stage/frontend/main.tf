@@ -12,16 +12,15 @@ provider "aws" {
 # but the S3 bucket name needs to be globally unique, so you have to uncomment the code below and specify it by hand.
 # ---------------------------------------------------------------------------------------------------------------------
 
-# TODO: uncomment!!
-#terraform {
-#  backend "s3" {
-#    region         = "us-east-1"
-#    bucket         = "iac-workshop-example-bucket"
-#    key            = "exercise-06/stage/frontend/terraform.tfstate"
-#    encrypt        = true
-#    dynamodb_table = "terraform-locks-example"
-#  }
-#}
+terraform {
+  backend "s3" {
+    region         = "eu-central-1"
+    bucket         = "this-is-our-bucket-name-mateipopa"
+    key            = "exercise-06-mateipopa/stage/frontend/terraform.tfstate" // Add env:/mateipopa/ when asked for the key var!
+    encrypt        = true
+    dynamodb_table = "terraform-locks-example-mateipopa"
+  }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE FRONTEND
@@ -40,7 +39,7 @@ module "frontend" {
 
   # Pass an output from the backend remote state to the frontend module. This is the URL of the backend microservice,
   # which the frontend will use for "service calls"
-  backend_url = data.terraform_remote_state.backend.backend_url
+  backend_url = data.terraform_remote_state.backend.outputs.backend_url
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ module "frontend" {
 data "terraform_remote_state" "backend" {
   backend = "s3"
 
-  config {
+  config = {
     region = var.aws_region
     bucket = var.backend_remote_state_s3_bucket
     key    = var.backend_remote_state_s3_key

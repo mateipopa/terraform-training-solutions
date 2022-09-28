@@ -11,7 +11,7 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 # Since we need to make some live HTTP calls for the frontend, a simple one-liner static HTTP server won't do. Instead,
 # we do a hacky install of Sinatra here and use that to proxy requests
 sudo apt-get install -y ruby
-sudo gem install sinatra --no-rdoc --no-ri
+sudo gem install sinatra
 
 # Create the Sinatra app. The variables below are filled via Terraform interpolation.
 cat << EOF > app.rb

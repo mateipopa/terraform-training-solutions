@@ -15,7 +15,7 @@ resource "aws_autoscaling_group" "microservice" {
   min_elb_capacity = var.size
 
   # Deploy all the subnets (and therefore AZs) available
-  vpc_zone_identifier = [data.aws_subnets.default.id]
+  vpc_zone_identifier = [for s in data.aws_subnet.default : s.id]
 
   # Automatically register this ASG's Instances in the ALB and use the ALB's health check to determine when an Instance
   # needs to be replaced
@@ -26,7 +26,7 @@ resource "aws_autoscaling_group" "microservice" {
 
   tag {
     key                 = "Name"
-    value               = var.name
+    value               = "${var.name}-${terraform.workspace}"
     propagate_at_launch = true
   }
 
@@ -85,7 +85,11 @@ data "template_file" "user_data" {
 
 data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
 
   filter {
     name   = "virtualization-type"
@@ -102,10 +106,7 @@ data "aws_ami" "ubuntu" {
     values = ["machine"]
   }
 
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
-  }
+  owners = ["099720109477"] # Canonical
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -162,7 +163,7 @@ resource "aws_security_group_rule" "web_server_allow_all_outbound" {
 resource "aws_alb" "web_servers" {
   name            = "${var.name}-${terraform.workspace}"
   security_groups = [aws_security_group.alb.id]
-  subnets         = [data.aws_subnets.default.id]
+  subnets         = [for s in data.aws_subnet.default : s.id]
   internal        = var.is_internal_alb_bool
 
   # This is here because aws_alb_listener.htp depends on this resource and sets create_before_destroy to true
@@ -298,9 +299,22 @@ resource "aws_route53_health_check" "service_up" {
 # deploy into a custom VPC and private subnets.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "vpc_id" {
+  default = ""
+}
+
 data "aws_vpc" "default" {
-  default = true
+  id = var.vpc_id
 }
 
 data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+data "aws_subnet" "default" {
+  for_each = toset(data.aws_subnets.default.ids)
+  id       = each.value
 }

@@ -13,15 +13,15 @@ provider "aws" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 # TODO: uncomment!!
-#terraform {
-#  backend "s3" {
-#    region         = "eu-central-1"
-#    bucket         = "iac-workshop-example-bucket"
-#    key            = "exercise-06-${numele.vostru}/stage/backend/terraform.tfstate"
-#    encrypt        = true
-#    dynamodb_table = "terraform-locks-example-${numele.vostru}"
-#  }
-#}
+terraform {
+  backend "s3" {
+    region         = "eu-central-1"
+    bucket         = "this-is-our-bucket-name-mateipopa"
+    key            = "exercise-06-mateipopa/stage/backend/terraform.tfstate"
+    encrypt        = true
+    dynamodb_table = "terraform-locks-example-mateipopa"
+  }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE BACKEND
