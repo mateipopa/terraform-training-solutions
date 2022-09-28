@@ -33,7 +33,7 @@ resource "aws_autoscaling_group" "web_servers" {
   min_elb_capacity = 3
 
   # Deploy all the subnets (and therefore AZs) available
-  vpc_zone_identifier = [data.aws_subnets.default.id]
+  vpc_zone_identifier = [for s in data.aws_subnet.default : s.id]
 
   # Automatically register this ASG's Instances in the ALB and use the ALB's health check to determine when an Instance
   # needs to be replaced
@@ -43,7 +43,7 @@ resource "aws_autoscaling_group" "web_servers" {
 
   tag {
     key                 = "Name"
-    value               = var.name
+    value               = "${var.name}-${terraform.workspace}"
     propagate_at_launch = true
   }
 
@@ -169,7 +169,7 @@ resource "aws_security_group_rule" "web_server_allow_all_outbound" {
 resource "aws_alb" "web_servers" {
   name            = "${var.name}-${terraform.workspace}"
   security_groups = [aws_security_group.alb.id]
-  subnets         = [data.aws_subnets.default.id]
+  subnets         = [for s in data.aws_subnet.default : s.id]
 
   # This is here because aws_alb_listener.htp depends on this resource and sets create_before_destroy to true
   lifecycle {
@@ -285,9 +285,22 @@ resource "aws_security_group_rule" "allow_all_outbound" {
 # deploy into a custom VPC and private subnets.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "vpc_id" {
+  default = ""
+}
+
 data "aws_vpc" "default" {
-  default = true
+  id = var.vpc_id
 }
 
 data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+data "aws_subnet" "default" {
+  for_each = toset(data.aws_subnets.default.ids)
+  id       = each.value
 }

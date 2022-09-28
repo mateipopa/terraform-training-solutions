@@ -27,7 +27,7 @@ resource "aws_instance" "web_server" {
   instance_type = "t2.micro"
 
   key_name               = var.key_name
-  vpc_security_group_ids = ["aws_security_group.web_server.id"]
+  vpc_security_group_ids = [aws_security_group.web_server.id]
 
   # To keep this example simple, we run a web server as a User Data script. In real-world usage, you would typically
   # install the web server and its dependencies in the AMI.

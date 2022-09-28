@@ -12,16 +12,15 @@ provider "aws" {
 # but the S3 bucket name needs to be globally unique, so you have to uncomment the code below and specify it by hand.
 # ---------------------------------------------------------------------------------------------------------------------
 
-# TODO: uncomment!!
-#terraform {
-#  backend "s3" {
-#    region         = "eu-central-1"
-#    bucket         = "iac-workshop-example-bucket"
-#    key            = "exercise-06-${numele.vostru}/prod/backend/terraform.tfstate"
-#    encrypt        = true
-#    dynamodb_table = "terraform-locks-example-${numele.vostru}"
-#  }
-#}
+terraform {
+  backend "s3" {
+    region         = "eu-central-1"
+    bucket         = "this-is-our-bucket-name-mateipopa"
+    key            = "exercise-06-mateipopa/prod/backend/terraform.tfstate"
+    encrypt        = true
+    dynamodb_table = "terraform-locks-example-mateipopa"
+  }
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE BACKEND

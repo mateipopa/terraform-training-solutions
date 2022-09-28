@@ -13,15 +13,16 @@ provider "aws" {
 # below and run terraform init to use this module with a backend.
 # ---------------------------------------------------------------------------------------------------------------------
 
-#terraform {
-#  backend "s3" {
-#    region         = "us-east-1"
-#    bucket         = "iac-workshop-example-bucket"
-#    key            = "exercise-02a/terraform.tfstate"
-#    encrypt        = true
-#    dynamodb_table = "terraform-locks-example"
-#  }
-#}
+/* terraform {
+  backend "s3" {
+    region         = "eu-central-1" // "us-east-1"
+    bucket         = "this-is-our-bucket-name-mateipopa" // Manually add suffix ${terraform.workspace} 
+    key            = "exercise-02a/terraform.tfstate"
+    encrypt        = true
+    dynamodb_table = "terraform-locks-example-mateipopa" // Manually add suffix ${terraform.workspace}
+  }
+}
+ */
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE S3 BUCKET
