@@ -23,7 +23,6 @@ variable "bucket_name" {
 
 variable "aws_region" {
   description = "The AWS region to deploy into (e.g. us-east-1)."
-  default     = "eu-central-1"
 }
 
 variable "dynamodb_lock_table_name" {

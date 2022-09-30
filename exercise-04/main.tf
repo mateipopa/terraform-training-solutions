@@ -285,10 +285,6 @@ resource "aws_security_group_rule" "allow_all_outbound" {
 # deploy into a custom VPC and private subnets.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "vpc_id" {
-  default = ""
-}
-
 data "aws_vpc" "default" {
   id = var.vpc_id
 }
