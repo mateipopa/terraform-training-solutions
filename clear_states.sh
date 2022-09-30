@@ -1,1 +1,1 @@
-find . -type d -or -type f -name "terraform.tfstate*" -prune -exec rm -rf {} \;
+find . -type d \( -name "terraform.tfstate*" -o -name ".terraform" \) -prune -exec rm -rf {} \;
