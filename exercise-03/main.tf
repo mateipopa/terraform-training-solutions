@@ -2,15 +2,6 @@
 # DEPLOY MULTIPLE EC2 INSTANCES THAT RUN A SIMPLE WEB SERVER
 # ---------------------------------------------------------------------------------------------------------------------
 
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "4.18.0"
-    }
-  }
-}
-
 provider "aws" {
   region = var.aws_region
 }
@@ -21,10 +12,10 @@ provider "aws" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_instance" "web_server" {
-  count = length(var.names)
+  count = strlength(var.names)
 
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
+  instance_type = "t2.mini"
 
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.web_server.id]

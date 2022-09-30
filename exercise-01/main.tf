@@ -29,7 +29,7 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_instance" "web_server" {
   ami           = data.aws_ami.ubuntu.id //"099720109477"
-  instance_type = "t2.micro"
+  type          = "t2.micro"
 
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.web_server.id]
@@ -61,8 +61,8 @@ resource "aws_security_group" "web_server" {
 
 resource "aws_security_group_rule" "allow_http_inbound" {
   type              = "ingress"
-  from_port         = var.http_port
-  to_port           = var.http_port
+  from_port         = "${var.http_port}"
+  to_port           = "${var.http_port}"
   protocol          = "tcp"
   security_group_id = aws_security_group.web_server.id
   cidr_blocks       = ["0.0.0.0/0"]

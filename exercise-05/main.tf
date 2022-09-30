@@ -15,8 +15,8 @@ module "frontend" {
 
   name                  = "frontend"
   size                  = 3
-  key_name              = var.key_name
-  user_data_script_name = "user-data-frontend.sh"
+  key                   = var.key_name
+  user_data_script_name = "scripts/user-data-frontend.sh"
   server_text           = var.frontend_server_text
   is_internal_alb       = 0
   is_internal_alb_bool  = false
@@ -35,8 +35,8 @@ module "backend" {
 
   name                  = "backend"
   size                  = 3
-  key_name              = var.key_name
-  user_data_script_name = "user-data-backend.sh"
+  key                   = var.key_name
+  user_data_script_name = "scripts/user-data-backend.sh"
   server_text           = var.backend_server_text
   is_internal_alb       = 1
   is_internal_alb_bool  = true

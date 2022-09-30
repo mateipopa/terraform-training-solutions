@@ -39,7 +39,7 @@ module "frontend" {
 
   # Pass an output from the backend remote state to the frontend module. This is the URL of the backend microservice,
   # which the frontend will use for "service calls"
-  backend_url = data.terraform_remote_state.backend.outputs.backend_url
+  backend_url = data.terraform_remote_state.backend.outputs.url
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
